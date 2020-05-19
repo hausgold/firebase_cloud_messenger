@@ -21,9 +21,9 @@ module FirebaseCloudMessenger
         response = make_fcm_request(message, validate_only, conn || request_conn)
 
         retry_count += 1
-        if response_successful?(response) || retry_count > max_retry_count
-          return message_from_response(response)
-        elsif response.code == "401"
+        return message_from_response(response) if response_successful?(response)
+
+        if response.code == "401" && retry_count <= max_retry_count
           refresh_access_token_info
         else
           raise Error.from_response(response)
